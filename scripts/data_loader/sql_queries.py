@@ -9,6 +9,7 @@ invoice_date TIMESTAMP,
 unit_price DECIMAL(10,2),
 customer_id INTEGER,
 country VARCHAR(75),
+ingested_at TIMESTAMP,
 PRIMARY KEY(order_id)
 );"""
 
@@ -21,7 +22,8 @@ COPY online_orders(
     invoice_date,
     unit_price,
     customer_id,
-    country
+    country,
+    ingested_at
 )
 FROM STDIN
 WITH CSV HEADER

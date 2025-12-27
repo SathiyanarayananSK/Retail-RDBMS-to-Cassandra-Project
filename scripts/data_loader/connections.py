@@ -43,7 +43,7 @@ class PostgresConnection():
                 copy.write(csv_file.read()) 
             self.cursor.execute("SELECT COUNT(*) FROM online_orders")
             row_count = self.cursor.fetchone()[0]
-            print(f"Rows in table: {row_count}")
+            print(f"Number of rows in table (from fetch): {row_count}")
             self.connection.commit()
         except Exception as e:
             print(f"Error connecting to PostgreSQL: {e}")

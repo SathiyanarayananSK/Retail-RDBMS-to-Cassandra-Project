@@ -2,6 +2,9 @@ import pandas as pd
 from io import StringIO
 from connections import PostgresConnection
 import sql_queries
+import time
+from datetime import datetime
+from random import randint
 
 def prepare_csv_data():
     # Read and prepare csv data
@@ -33,14 +36,36 @@ if __name__ =="__main__":
 
     # Read and prepare the csv from disc
     orders_df = prepare_csv_data()
+    total_rows = len(orders_df)
+    current_index = 0
 
-    # Prepare in-memory CSV for COPY
-    buffer = StringIO()
-    orders_df.to_csv(buffer, index=False, header=True)
-    buffer.seek(0)
+    while current_index < total_rows:
+        # Random batch size between 1000 and 10000
+        batch_size = randint(1000, 10000)
+        end_index = min(current_index + batch_size, total_rows)
 
-    # Copy the contents to the db
-    online_orders.execute_copy(sql_queries.copy_online_orders, buffer)
+        batch_df = orders_df.iloc[current_index:end_index].copy()
+        # Add current timestamp column
+        batch_df['ingested_at'] = datetime.now()
+        
+
+        print(f"Inserting rows {current_index} to {end_index} (batch size: {len(batch_df)})")
+
+        # Prepare in-memory CSV for COPY
+        buffer = StringIO()
+        batch_df.to_csv(buffer, index=False, header=True)
+        buffer.seek(0)
+
+        # Copy the batch to the db
+        online_orders.execute_copy(sql_queries.copy_online_orders, buffer)
+
+        # Update index
+        current_index = end_index
+
+        # Delay before next batch
+        delay_seconds = 10
+        print(f"Next batch coming in {delay_seconds} seconds!\n")
+        time.sleep(delay_seconds)
 
     # Close the connection
     online_orders.close_connection()
