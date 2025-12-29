@@ -11,7 +11,7 @@ class PostgresConnection():
     def __init__(self):
         load_dotenv()
         # Get the connection string from environment variable
-        self.conn_string = os.getenv('neon_connection_string')
+        self.conn_string = os.getenv('NEON_CONNECTION_STRING')
         # Connect to table
         self.connection = self.create_postgres_connection()
         self.cursor = self.connection.cursor()
@@ -24,7 +24,7 @@ class PostgresConnection():
                 sys.exit(1)
             # Connect using the connection string
             conn = psycopg.connect(self.conn_string)
-            print("Successfully connected to Neon PostgreSQL using connection string")
+            print("\nSuccessfully connected to Neon PostgreSQL using connection string")
             return conn
         except Exception as e:
             print(f"Error connecting to PostgreSQL: {e}")
@@ -33,7 +33,7 @@ class PostgresConnection():
     def execute_query(self, query):
         try:
             exec_op = self.cursor.execute(query)
-            print(exec_op)
+            print("Orders table created or already exists.")
             self.connection.commit()
         except Exception as e:
             print(f"Error connecting to PostgreSQL: {e}")
@@ -46,7 +46,7 @@ class PostgresConnection():
                 copy.write(csv_file.read()) 
             self.cursor.execute("SELECT COUNT(*) FROM online_orders")
             row_count = self.cursor.fetchone()[0]
-            print(f"Number of rows in table (from fetch): {row_count}")
+            print(f"Number of rows in rdbms table (from fetch): {row_count}")
             self.connection.commit()
         except Exception as e:
             print(f"Error connecting to PostgreSQL: {e}")
@@ -64,6 +64,7 @@ class AstraDBConnection:
         load_dotenv()
         self.bundle_path = 'secure-connect-retail-cassandra.zip'
         self.auth_provider = PlainTextAuthProvider('token', os.getenv('ASTRA_TOKEN'))
+        self.connection = self.connect_to_the_cluster()
 
     def connect_to_the_cluster(self):
         # Connect to the Cluster
@@ -73,11 +74,7 @@ class AstraDBConnection:
             session.set_keyspace("orders_keyspace")
             # Check the version
             row = session.execute("SELECT release_version FROM system.local").one()
-            print("------------------------------------------")
-            print(f"Success! Connected to Astra DB.")
-            print(f"Cassandra Version: {row[0]}")
-            print("------------------------------------------")
+            print(f"\nSuccess! Connected to Astra DB. - Cassandra Version: {row[0]}")
+            return session
         except Exception as e:
             print(f"Connection Failed: {e}")
-        finally:
-            cluster.shutdown()
