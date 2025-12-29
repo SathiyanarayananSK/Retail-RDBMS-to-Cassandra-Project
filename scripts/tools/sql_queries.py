@@ -28,3 +28,8 @@ COPY online_orders(
 FROM STDIN
 WITH CSV HEADER
 """
+
+keyspace_query = """
+CREATE KEYSPACE IF NOT EXISTS orders_keyspace 
+WITH replication = {'class': 'NetworkTopologyStrategy', 'replication_factor':1};
+"""

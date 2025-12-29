@@ -1,6 +1,10 @@
 import sys, os
 import psycopg
 from dotenv import load_dotenv
+from cassandra.cluster import Cluster
+from cassandra.auth import PlainTextAuthProvider
+from scripts.tools.sql_queries import keyspace_query
+
 
 
 # Class to connect to Neon - Postgres and execute commands
@@ -53,3 +57,33 @@ class PostgresConnection():
         if self.connection:
             # Close the connection
             self.connection.close()
+
+
+class AstraDBConnection:
+    def __init__(self):
+        load_dotenv()
+        # CONFIGURATION
+        BUNDLE_PATH = 'scripts/pipeline_builder/secure-connect-retail-cassandra.zip' 
+
+        # Token details
+        auth_provider = PlainTextAuthProvider('token', os.getenv('astra_token'))
+
+        # Connect to the Cluster
+        cluster = Cluster(cloud={'secure_connect_bundle': BUNDLE_PATH}, auth_provider=auth_provider)
+
+        try:
+            session = cluster.connect()
+
+            session.set_keyspace("orders_keyspace")
+            
+            # Check the version
+            row = session.execute("SELECT release_version FROM system.local").one()
+            print("------------------------------------------")
+            print(f"Success! Connected to Astra DB.")
+            print(f"Cassandra Version: {row[0]}")
+            print("------------------------------------------")
+
+        except Exception as e:
+            print(f"Connection Failed: {e}")
+        finally:
+            cluster.shutdown()

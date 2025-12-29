@@ -1,7 +1,7 @@
 import pandas as pd
 from io import StringIO
-from connections import PostgresConnection
-import sql_queries
+from scripts.tools.connections import PostgresConnection
+import scripts.tools.sql_queries as sql_queries
 import time
 from datetime import datetime
 from random import randint
