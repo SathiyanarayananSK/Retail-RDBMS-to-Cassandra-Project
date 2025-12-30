@@ -9,6 +9,8 @@ import time
 if __name__ == "__main__":
     # Connect to postgres
     retail_postgres = PostgresConnection()
+
+    # Initialize RDBMS data loader
     rdbms_data_loader = RDBMSDataLoader(retail_postgres)
     
     # Connect to Astra
