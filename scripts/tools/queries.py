@@ -53,3 +53,34 @@ INSERT INTO bronze_orders (
     country, ingested_at, cassandra_injested_at
 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 """
+
+create_silver_sales_trends_by_country_month_table_cql = """
+CREATE TABLE IF NOT EXISTS silver_orders_by_country_month (
+    country text,
+    year_month text,
+    invoice_date timestamp,
+    order_id int,
+    customer_id int,
+    quantity int,
+    unit_price float,
+    total_value float,
+    PRIMARY KEY ((country, year_month), invoice_date, order_id)
+) WITH CLUSTERING ORDER BY (invoice_date DESC, order_id ASC);
+"""
+
+insert_silver_orders_by_country_month = """
+INSERT INTO silver_orders_by_country_month (
+    country, year_month, invoice_date, order_id, 
+    customer_id, quantity, unit_price, total_value
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+"""
+
+silver_pipeline_metadata_cql = """
+CREATE TABLE IF NOT EXISTS pipeline_metadata (
+    pipeline_name text PRIMARY KEY, last_processed_id int)
+"""
+silver_pipeline_metadata_insert_cql = """
+INSERT INTO pipeline_metadata (pipeline_name, last_processed_id) 
+VALUES ('bronze_to_silver_sales', -1) 
+IF NOT EXISTS;
+"""

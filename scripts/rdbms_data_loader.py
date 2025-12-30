@@ -20,8 +20,8 @@ class RDBMSDataLoader:
     def run_batch_loader(self):
         if self.current_index < self.total_rows:
             print("")
-            # Random batch size between 1000 and 5000
-            batch_size = randint(1000, 5000)
+            # Random batch size 
+            batch_size = randint(300, 800)
             end_index = min(self.current_index + batch_size, self.total_rows)
 
             batch_df = self.orders_df.iloc[self.current_index:end_index].copy()

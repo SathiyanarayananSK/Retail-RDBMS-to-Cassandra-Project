@@ -35,7 +35,7 @@ class SyncBronze:
         # get the highest ID from astra to never duplicate work
         result = self.connection_astra.execute("SELECT MAX(order_id) FROM bronze_orders").one()
         last_synced_id = result[0] if result[0] is not None else -1
-        print(f"Watermark found: {last_synced_id}")
+        print(f"Bronze - Watermark found: {last_synced_id}")
 
         # fetch everything new from Postgres
         pg_query = "SELECT * FROM online_orders WHERE order_id > %s ORDER BY order_id ASC"
@@ -43,10 +43,10 @@ class SyncBronze:
         rows = self.connection_pg.fetchall()
         
         if not rows:
-            print("Data is already in sync. Nothing to do.")
+            print("Bronze - Data is already in sync. Nothing to do.")
             return
 
-        print(f"Found {len(rows)} new rows in Postgres. Preparing transfer...")
+        print(f"Bronze - Found {len(rows)} new rows in Postgres. Preparing transfer...")
 
         # prepare and load the data into Astra Bronze
         

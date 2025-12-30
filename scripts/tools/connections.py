@@ -33,7 +33,7 @@ class PostgresConnection():
     def execute_query(self, query):
         try:
             exec_op = self.cursor.execute(query)
-            print("Orders table created or already exists.")
+            print("Postgres - Orders table created or already exists.")
             self.connection.commit()
         except Exception as e:
             print(f"Error connecting to PostgreSQL: {e}")
@@ -78,3 +78,8 @@ class AstraDBConnection:
             return session
         except Exception as e:
             print(f"Connection Failed: {e}")
+
+    def close_connection(self):
+        if self.connection:
+            self.connection.shutdown()
+  
